@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"os"
+
 	// "fmt"
 	"net/http"
 	"strconv"
@@ -11,6 +15,8 @@ import (
 	"waysbucks/repositories"
 
 	// "github.com/go-playground/validator/v10"
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gorilla/mux"
 )
 
@@ -70,7 +76,7 @@ func (h *handlersProduct) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 
 	dataContext := r.Context().Value("dataFile")
-	filename := dataContext.(string)
+	filepath := dataContext.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := productdto.CreateProduct{
@@ -78,10 +84,25 @@ func (h *handlersProduct) CreateProduct(w http.ResponseWriter, r *http.Request) 
 		Price: price,
 	}
 
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbuck"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	product := models.Product{
 		Title: request.Title,
 		Price: request.Price,
-		Image: filename,
+		Image: resp.SecureURL,
 	}
 
 	data, err := h.ProductRepository.CreateProduct(product)
@@ -166,7 +187,6 @@ func (h *handlersProduct) DeleteProduct(w http.ResponseWriter, r *http.Request) 
 	response := dto.SuccessResult{Code: "Success", Data: data}
 	json.NewEncoder(w).Encode(response)
 }
-
 
 func convertResponseProduct(u models.Product) productdto.ProductResponse {
 	return productdto.ProductResponse{
