@@ -82,6 +82,7 @@ func (h *handlersProduct) CreateProduct(w http.ResponseWriter, r *http.Request) 
 	request := productdto.CreateProduct{
 		Title: r.FormValue("title"),
 		Price: price,
+		Image: filepath,
 	}
 
 	var ctx = context.Background()
