@@ -41,9 +41,9 @@ func (h *handlersProduct) FindProducts(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	for i, p := range products {
-		products[i].Image = path_file_product + p.Image
-	}
+	// for i, p := range products {
+	// 	products[i].Image = path_file_product + p.Image
+	// }
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: "Success", Data: products}
@@ -63,7 +63,7 @@ func (h *handlersProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	product.Image = path_file_product + product.Image
+	// product.Image = path_file_product + product.Image
 	// fmt.Println(product.Image)
 
 	w.WriteHeader(http.StatusOK)
